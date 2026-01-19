@@ -65,9 +65,6 @@ window.login = async () => {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
 
-    // 🔴 force refresh user state
-    await cred.user.reload();
-
     if (!cred.user.emailVerified) {
       alert("Please verify your email first");
       return;
@@ -126,23 +123,18 @@ window.register = async () => {
     );
 
     await setDoc(doc(db, "users", cred.user.uid), {
-      role,
+      role: role,
       name: role === "doctor" ? empName : name,
       employeeId: role === "doctor" ? empId : null,
-      email,
+      email: email,
       createdAt: new Date(),
     });
 
-    // ✅ IMPORTANT: send verification with redirect
-    await sendEmailVerification(cred.user, {
-      url: "https://khilvansh6789.github.io/CareConnect/verify.html",
-    });
+    await sendEmailVerification(cred.user);
 
     alert("Verification email sent. Please check your inbox.");
-   
-
+    location.href = "verify.html";
   } catch (e) {
     alert(e.message);
   }
 };
-
