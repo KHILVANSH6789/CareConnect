@@ -4,20 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>CareConnect Register</title>
+  <title>Verify Email</title>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/bubbles.css">
   <link rel="stylesheet" href="css/loaders.css">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Special+Gothic+Condensed+One&family=Smooch+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Favicon (optional) -->
-  <!-- <link rel="icon" href="favicon.ico"> -->
 </head>
 
 <body>
@@ -25,38 +20,56 @@
 <div class="bubble-bg"></div>
 
 <div class="card">
-  <h1>Verify Your Email</h1>
-  <p>Please check your inbox.<br>Waiting for verification…</p>
+  <h1 id="status">Verifying your email…</h1>
+  <p id="message">Please wait</p>
 
-<!-- From Uiverse.io by Nawsome --> 
-<svg class="pl" width="240" height="240" viewBox="0 0 240 240">
-	<circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 660" stroke-dashoffset="-330" stroke-linecap="round"></circle>
-	<circle class="pl__ring pl__ring--b" cx="120" cy="120" r="35" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 220" stroke-dashoffset="-110" stroke-linecap="round"></circle>
-	<circle class="pl__ring pl__ring--c" cx="85" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
-	<circle class="pl__ring pl__ring--d" cx="155" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
-</svg>
+  <svg class="pl" width="120" height="120" viewBox="0 0 240 240">
+    <circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20"/>
+  </svg>
+</div>
 
 <script type="module">
-  import { auth } from "./js/firebase.js";
-  import { reload } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth,
+    applyActionCode
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const CHECK_INTERVAL = 3000; // 3 seconds
+  const firebaseConfig = {
+    apiKey: "YOUR_NEW_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+  };
 
-  async function checkVerification() {
-    const user = auth.currentUser;
-    if (!user) return;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    await reload(user);
+  const status = document.getElementById("status");
+  const message = document.getElementById("message");
 
-    if (user.emailVerified) {
-      window.location.href = "home.html";
-    }
+  const params = new URLSearchParams(window.location.search);
+  const oobCode = params.get("oobCode");
+
+  if (!oobCode) {
+    status.innerText = "Invalid verification link";
+    message.innerText = "Please request a new verification email.";
+  } else {
+    applyActionCode(auth, oobCode)
+      .then(() => {
+        status.innerText = "Email verified successfully 🎉";
+        message.innerText = "Redirecting to login…";
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 3000);
+      })
+      .catch(() => {
+        status.innerText = "Verification link expired";
+        message.innerText = "Please request a new verification email.";
+      });
   }
-
-  // Run every 3 seconds
-  setInterval(checkVerification, CHECK_INTERVAL);
 </script>
-
 
 </body>
 </html>
