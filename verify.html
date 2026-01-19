@@ -2,74 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Verify Email</title>
-
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/bubbles.css">
-  <link rel="stylesheet" href="css/loaders.css">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Special+Gothic+Condensed+One&family=Smooch+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>Email Verification</title>
 </head>
 
 <body>
+  <h2 id="status">Verifying your email…</h2>
 
-<div class="bubble-bg"></div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, applyActionCode } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<div class="card">
-  <h1 id="status">Verifying your email…</h1>
-  <p id="message">Please wait</p>
+    const firebaseConfig = {
+      apiKey: "NEW_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-  <svg class="pl" width="120" height="120" viewBox="0 0 240 240">
-    <circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20"/>
-  </svg>
-</div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getAuth,
-    applyActionCode
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    const params = new URLSearchParams(window.location.search);
+    const oobCode = params.get("oobCode");
+    const status = document.getElementById("status");
 
-  const firebaseConfig = {
-    apiKey: "YOUR_NEW_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  const status = document.getElementById("status");
-  const message = document.getElementById("message");
-
-  const params = new URLSearchParams(window.location.search);
-  const oobCode = params.get("oobCode");
-
-  if (!oobCode) {
-    status.innerText = "Invalid verification link";
-    message.innerText = "Please request a new verification email.";
-  } else {
-    applyActionCode(auth, oobCode)
-      .then(() => {
-        status.innerText = "Email verified successfully 🎉";
-        message.innerText = "Redirecting to login…";
-
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 3000);
-      })
-      .catch(() => {
-        status.innerText = "Verification link expired";
-        message.innerText = "Please request a new verification email.";
-      });
-  }
-</script>
-
+    if (!oobCode) {
+      status.innerText = "Invalid verification link.";
+    } else {
+      applyActionCode(auth, oobCode)
+        .then(() => {
+          status.innerText = "Email verified successfully! Redirecting…";
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 2500);
+        })
+        .catch(err => {
+          console.error(err);
+          status.innerText =
+            "This verification link is expired or already used.";
+        });
+    }
+  </script>
 </body>
 </html>
