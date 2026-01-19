@@ -139,9 +139,10 @@ window.register = async () => {
     });
 
     alert("Verification email sent. Please check your inbox.");
-    location.href = "verify.html";
+   
 
   } catch (e) {
     alert(e.message);
   }
 };
+
