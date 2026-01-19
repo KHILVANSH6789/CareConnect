@@ -3,7 +3,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBWek6DQ-aJPlgRNU8foNYJJKAbE1CpSck",
+  apiKey: "AIzaSyDlADT64T5LT52D_FLqI6yPy9tgdct6FBM",
   authDomain: "careconnect-0.firebaseapp.com",
   projectId: "careconnect-0",
   storageBucket: "careconnect-0.appspot.com",
@@ -14,3 +14,4 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
